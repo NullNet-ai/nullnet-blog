@@ -11,7 +11,7 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Rust & Security',
-    Svg: require('@site/static/img/RustSecurity.svg').default,
+    Svg: require('@site/static/img/RurstSecurity.svg').default,
     description: (
       <>
         Welcome to Nullnet—a blog where security meets Rust. If you’re into building rock-solid, secure software and want to see how Rust is changing the game, you’re in the right place. We’ll dive into the latest hacks (the good kind), explore how Rust makes code safer and faster, and share tips to level up your skills. 
