@@ -1,17 +1,23 @@
-endi:
-  name: Endilie Yacop Sucipto
-  title: Maintainer of Docusaurus
-  url: https://github.com/endiliey
-  image_url: https://github.com/endiliey.png
+bon:
+  name: Bon Lazaga
+  title: CTO @ Nullnet
+  url: https://github.com/blazaga
+  image_url: https://github.com/blazaga.png
 
-yangshun:
-  name: Yangshun Tay
-  title: Front End Engineer @ Facebook
-  url: https://github.com/yangshun
-  image_url: https://github.com/yangshun.png
+farsheed:
+  name: Farsheed Atef
+  title: CEO @ Nullnet
+  url: https://github.com/farsheed
+  image_url: https://github.com/farsheed.png
 
-slorber:
-  name: Sébastien Lorber
-  title: Docusaurus maintainer
-  url: https://sebastienlorber.com
-  image_url: https://github.com/slorber.png
+giuliano:
+  name: Giuliano Bellini
+  title: Lead Developer @ Nullnet
+  url: https://github.com/GyulyVGC
+  image_url: https://github.com/GyulyVGC.png
+
+anton:
+  name: Anton Liashkevich
+  title: Developer @ Nullnet
+  url: https://github.com/antoncxx
+  image_url: https://github.com/antoncxx.png
