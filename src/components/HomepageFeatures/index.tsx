@@ -14,8 +14,7 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/RurstSecurity.svg').default,
     description: (
       <>
-        Welcome to Nullnet—a blog where security meets Rust. If you’re into building rock-solid, secure software and want to see how Rust is changing the game, you’re in the right place. We’ll dive into the latest hacks (the good kind), explore how Rust makes code safer and faster, and share tips to level up your skills. 
-        Whether you’re a pro or just curious, Nullnet is here to keep you in the loop on all things security and Rust..
+       Welcome to the Nullnet blog! If you're interested in building secure software and exploring what Rust can do, you're in the right place. Here, we’ll share how we’re designing and building security-focused applications, with practical tips on architecture and Rust programming along the way. Whether you're just getting started or looking to sharpen your skills, we’ve got something for you. Let’s dive in and build better, safer software together!
       </>
     ),
   },
@@ -23,11 +22,11 @@ const FeatureList: FeatureItem[] = [
 
 function Feature({title, Svg, description}: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
+    <div className={clsx('col col--12')}>
+      <div className="text--left">
         <Svg className={styles.featureSvg} role="img" />
       </div>
-      <div className="text--center padding-horiz--md">
+      <div className="text--left padding-horiz--md">
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
       </div>
