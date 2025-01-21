@@ -10,32 +10,11 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Easy to Use',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'Rust & Security',
+    Svg: require('@site/static/img/RurstSecurity.jpg').default,
     description: (
       <>
-        Docusaurus was designed from the ground up to be easily installed and
-        used to get your website up and running quickly.
-      </>
-    ),
-  },
-  {
-    title: 'Focus on What Matters',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
-    description: (
-      <>
-        Docusaurus lets you focus on your docs, and we&apos;ll do the chores. Go
-        ahead and move your docs into the <code>docs</code> directory.
-      </>
-    ),
-  },
-  {
-    title: 'Powered by React',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
-    description: (
-      <>
-        Extend or customize your website layout by reusing React. Docusaurus can
-        be extended while reusing the same header and footer.
+        Welcome to Nullnet—a blog where security meets Rust. If you’re into building rock-solid, secure software and want to see how Rust is changing the game, you’re in the right place. We’ll dive into the latest hacks (the good kind), explore how Rust makes code safer and faster, and share tips to level up your skills. Whether you’re a pro or just curious, Nullnet is here to keep you in the loop on all things security and Rust..
       </>
     ),
   },
