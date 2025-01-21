@@ -11,10 +11,11 @@ type FeatureItem = {
 const FeatureList: FeatureItem[] = [
   {
     title: 'Rust & Security',
-    Svg: require('@site/static/img/RurstSecurity.jpg').default,
+    Svg: require('@site/static/img/RustSecurity.svg').default,
     description: (
       <>
-        Welcome to Nullnet—a blog where security meets Rust. If you’re into building rock-solid, secure software and want to see how Rust is changing the game, you’re in the right place. We’ll dive into the latest hacks (the good kind), explore how Rust makes code safer and faster, and share tips to level up your skills. Whether you’re a pro or just curious, Nullnet is here to keep you in the loop on all things security and Rust..
+        Welcome to Nullnet—a blog where security meets Rust. If you’re into building rock-solid, secure software and want to see how Rust is changing the game, you’re in the right place. We’ll dive into the latest hacks (the good kind), explore how Rust makes code safer and faster, and share tips to level up your skills. 
+        Whether you’re a pro or just curious, Nullnet is here to keep you in the loop on all things security and Rust..
       </>
     ),
   },
