@@ -41,13 +41,7 @@ If you're not familiar with Rust's Workspaces or gRPC, don't worry — we'll int
 
 In the next sections, we'll go through the high-level implementation of the `arithmetic-workspace`, the `algebraic-server`, the `geometric-server`, and the clients that will consume the services.
 
-We don't want to overwhelm you with too much code so we'll keep the examples simple and focused on the core concepts.
-
-However, you can find the full source code of the project on GitHub:
-- [arithmetic-workspace](
-- [algebraic-server](
-- [geometric-server](
-- [clients](
+We don't want to overwhelm you with too much code, so we'll keep the snippets simple and focus on the core concepts of the architecture.
 
 ## Rust's Workspaces: the `arithmetic-workspace`
 
@@ -228,4 +222,73 @@ Even though we focused on the `algebraic-server`, the `geometric-server` follows
 
 ## Clients
 
-TODO
+The clients are the final piece of the puzzle.<br>
+They will use the gRPC interfaces exposed by the servers to perform remote procedure calls and consume the services.
+
+In our toy project, we'll create two clients: one for the `algebraic-server` and one for the `geometric-server` —
+we'll call them `algebraic-client` and `geometric-client`, respectively.
+
+As previously mentioned, the clients will use the same generated gRPC code from the servers.<br>
+For this reason, clients don't need to directly include `tonic`-related dependencies in their `Cargo.toml` file,
+but only the library target from the server they're going to consume.
+
+To make things a little more interesting, each client won't just call the server endpoints directly, 
+but will receive inputs from a file that is monitored for changes.
+
+The `algebraic-client` will read its inputs from a file containing a list of exponentiation and factorization operations to perform and will call the server for each of them.<br>
+Here is a sample input file to compute the mathematical operations `2^4` and `5!`:
+
+```text
+pow 2,4
+factorial 5
+```
+
+In a similar fashion, the `geometric-client` will read its inputs from a file containing a list of area computation operations to perform and will invoke the server to compute them.<br>
+In the following, a sample input file to compute the areas of a square with side length `3` and a circle with radius `2`:
+
+```text
+square 3
+circle 2
+```
+
+As you can see, files have a peculiar format that depends on the kind of supported operations.<br>
+Each client is in charge of parsing the input file and calling the appropriate server endpoint.<br>
+We won't go into the details of the parsing implementation here, as it's not relevant to the core concepts of the architecture.
+
+What's more relevant is the way the clients interact seamlessly with the servers:
+they're able to call the server endpoints without having to worry about the underlying gRPC communication details. <br>
+In fact, the clients will only interact indirectly with the gRPC layer through the facades exposed by the servers.
+
+Furthermore, what's interesting to note is that, despite each client needs to implement a specific parsing logic,
+both clients need a shared functionality that is the ability to monitor the input file for changes:
+this is another sample use case for a shared library.
+
+Following the same pattern we used for the servers, we can add a new member to our `arithmetic-workspace` to contain the shared functionality for the clients. <br>
+Let's call this library `file_monitor` and refactor our workspace to include two different subfolders: one for the server-related libraries and one for the client-related ones.
+
+The final structure of the workspace will look like this:
+
+```text
+├── Cargo.lock
+├── Cargo.toml
+├── client_libraries
+│   └── file_monitor
+├── server_libraries
+│   ├── add
+│   ├── subtract
+│   ├── multiply
+│   └── divide
+└── target
+```
+
+## Wrapping up
+
+In this article, we've gone through the implementation of a client-server architecture based on Rust's Workspaces and gRPC. <br>
+We've seen how to structure a project with multiple services and shared libraries, how to define gRPC servers including facades for the clients, and how to use Protocol Buffers to define service interfaces.
+
+In case you're interested in taking a closer look at the source code, you can find the full implementation of the modules on our GitHub:
+- [`arithmetic-workspace`](https://github.com/NullNet-ai/arithmetic-workspace)
+- [`algebraic-server`](https://github.com/NullNet-ai/algebraic-server)
+- [`geometric-server`](https://github.com/NullNet-ai/geometric-server)
+- [`algebraic-client`](https://github.com/NullNet-ai/algebraic-client)
+- [`geometric-client`](https://github.com/NullNet-ai/geometric-client)
