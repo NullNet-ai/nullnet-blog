@@ -220,7 +220,7 @@ impl AlgebraicGrpcInterface {
 
 Even though we focused on the `algebraic-server`, the `geometric-server` follows the same overall structure and principles.
 
-## Clients
+## Clients: the `algebraic-client` and `geometric-client`
 
 The clients are the final piece of the puzzle.<br>
 They will use the gRPC interfaces exposed by the servers to perform remote procedure calls and consume the services.
@@ -232,8 +232,8 @@ As previously mentioned, the clients will use the same generated gRPC code from 
 For this reason, clients don't need to directly include `tonic`-related dependencies in their `Cargo.toml` file,
 but only the library target from the server they're going to consume.
 
-To make things a little more interesting, each client won't just call the server endpoints directly, 
-but will receive inputs from a file that is monitored for changes.
+To make things a little more interesting, each client won't just hardcode calls to the server endpoints, 
+but will receive inputs from a file that is continuously monitored for changes.
 
 The `algebraic-client` will read its inputs from a file containing a list of exponentiation and factorization operations to perform and will call the server for each of them.<br>
 Here is a sample input file to compute the mathematical operations `2^4` and `5!`:
@@ -284,7 +284,7 @@ The final structure of the workspace will look like this:
 ## Wrapping up
 
 In this article, we've gone through the implementation of a client-server architecture based on Rust's Workspaces and gRPC. <br>
-We've seen how to structure a project with multiple services and shared libraries, how to define gRPC servers including facades for the clients, and how to use Protocol Buffers to define service interfaces.
+We've seen how to structure a project with multiple services using shared libraries, how to define gRPC servers including facades for their own clients, and how to use Protocol Buffers to define service interfaces.
 
 In case you're interested in taking a closer look at the source code, you can find the full implementation of the modules on our GitHub:
 - [`arithmetic-workspace`](https://github.com/NullNet-ai/arithmetic-workspace)
