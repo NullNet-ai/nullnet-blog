@@ -3,18 +3,16 @@ slug: workspaces-grpc
 title: A full-fledged Rust architecture based on workspaces and gRPC
 authors: [giuliano]
 tags: [rust, grpc, distributed-systems]
-date: 2025-01-28 # update date
+date: 2025-01-30 # update date
 image: ./diagram1.png
 ---
-
-## Introduction
 
 Welcome to the first issue of the **Nullnet Blog**!
 
 :::info[About us]
 
 We're a group of developers passionate about the Rust programming language and its ecosystem.<br>
-We're in the process of building an open-source, Rust-based firewall management system that operates at different layers of the network stack.<br>
+We're in the process of building an open-source, Rust-based **firewall management system** that operates at different layers of the network stack.<br>
 As we learn and experiment along the way, this blog aims to share our experiences and knowledge with the community — we hope you'll find our content useful and engaging.
 
 :::
@@ -28,14 +26,28 @@ Too much introduction already, let's dive into the fun stuff!
 
 ## The problem
 
-TODO: add a brief description of the problem we're trying to solve
+This blog post is inspired by a problem we faced while **designing the architecture** for the project we're working on.<br>
+We need to build a **distributed system** composed of multiple services that can communicate with clients over the network.<br>
+Clearly each service has to expose a set of functionalities to clients, but at the same time services need to share some **common functionalities** among them.<br>
+We want to avoid code duplication and ensure that the shared capabilities are maintained in a single place,
+accommodating the need for new features — _and potentially new services using part of the existing functionalities_ — without requiring a complete overhaul of the existing codebase.
 
-For the sake of simplicity, in this article we're going to implement a calculator service that can perform basic arithmetic operations,
-but the same concepts are applicable to arbitrarily complex systems. <br>
+Moreover, we had in mind different requirements for the **client-server interactions**:
+- **type safety**: clients must be able to interact with the services in a type-safe way, without having to handle manually the serialization and deserialization of messages
+- **language independence**: clients and servers must be able to communicate regardless of the programming language they're implemented in; in fact, even if the core of our project is written in Rust, we still need to support clients that belong to different ecosystems
+- **protocol transparency**: clients must not be aware of the underlying communication protocol — they should instead be able to call the services as if they were local functions
+- **encryption**: the communication must be secured, ensuring that messages are properly encrypted during transmission
 
 ## Case study
 
-Before starting with the actual code, let's define the skeleton for our calculator project.
+To better illustrate the concepts we're going to discuss,
+let's introduce a **toy project** that will serve as a case study.
+
+For the sake of simplicity,
+in this article we're going to implement **calculator services** that perform basic algebraic and geometric operations,
+but the same concepts are applicable to arbitrarily complex systems.
+
+Before starting with the actual code, let's define the **skeleton** for our calculator project.
 
 <div align="center">
     <img src="diagram1.png" alt="Case study diagram"/>
@@ -45,7 +57,8 @@ As it's outlined in the diagram above, we want to create two different services:
 - the `algebraic-server`, providing functionalities related to algebraic operations (e.g., factorials, exponents)
 - the `geometric-server`, exposing utilities related to geometric operations (e.g., computation of shape areas)
 
-Both services will internally use a shared set of basic arithmetic operations (addition, subtraction, multiplication, division) implemented in the `arithmetic-workspace` module.
+Both services will internally use a shared set of simple arithmetic operations
+(addition, subtraction, multiplication, division) implemented in the `arithmetic-workspace` module.
 
 Each of the two services will then be exposed to clients through a gRPC interface.
 
@@ -86,8 +99,8 @@ Once the workspace is set up, we can move on to the implementation of the actual
 ## gRPC services: the `algebraic-server` and `geometric-server`
 
 [gRPC](https://grpc.io) is a modern high-performance, open-source Remote Procedure Call framework that allows you to define **services** and **message types** using [Protocol Buffers](https://protobuf.dev),
-a language-agnostic mechanism to serialize structured data.<br>
-It's a great choice for building distributed systems, as it provides a simple yet efficient and **type-safe** way to communicate between services.
+a **language-agnostic** mechanism to serialize structured data.<br>
+It's a great choice for building robust distributed systems, as it provides a simple yet efficient and **type-safe** way to communicate between services.
 
 Rust hasn't yet received official support for gRPC, but the [`tonic`](https://github.com/hyperium/tonic) project provides a feature-rich, production-ready implementation of gRPC for our beloved language.<br>
 Let's include the needed dependencies in the `Cargo.toml` file of the `algebraic-server` and `geometric-server`:
@@ -193,6 +206,10 @@ async fn main() {
 }
 ```
 
+This piece of code starts a gRPC server accepting plain unencrypted messages,
+but `tonic` also supports encrypted connections using TLS —
+you can find more information about it in the [official documentation](https://docs.rs/tonic/latest/tonic/transport/index.html).
+
 But wait... we're still missing a crucial part: the **clients**!<br> 
 Even though the `algebraic-server` and `geometric-server` are intended to act as service implementors, we're going to use the same repositories to also expose **facades** for their clients.<br>
 This way, there is no need to include protobuf files in the clients' repositories, as they can use the same generated code from the servers.
@@ -285,6 +302,9 @@ this is another sample use case for a shared library.
 
 Following the same pattern we used for the servers, we can add a new member to our `arithmetic-workspace` to contain the shared functionality for the clients. <br>
 Let's call this library `file_monitor` and refactor our workspace to include two different subfolders: one for the server-related libraries and one for the client-related ones.
+
+It's worth mentioning that while the `file_monitor` library will be imported by both clients, 
+it's not a dependency of the servers, so it won't be included in the server's manifest file.
 
 The final structure of the workspace will look like this:
 
