@@ -1,16 +1,12 @@
-facebook:
-  label: Facebook
-  permalink: /facebook
-  description: Facebook tag description
-hello:
-  label: Hello
-  permalink: /hello
-  description: Hello tag description
-docusaurus:
-  label: Docusaurus
-  permalink: /docusaurus
-  description: Docusaurus tag description
-hola:
-  label: Hola
-  permalink: /hola
-  description: Hola tag description
+rust:
+  label: Rust
+  permalink: /rust
+  description: A language empowering everyone to build reliable and efficient software
+grpc:
+  label: gRPC
+  permalink: /grpc
+  description: A high-performance, open-source, language-agnostic RPC framework
+distributed-systems:
+  label: Distributed Systems
+  permalink: /distributed-systems
+  description: A collection of programs that use resources across multiple, separate computation nodes to achieve a common, shared goal
