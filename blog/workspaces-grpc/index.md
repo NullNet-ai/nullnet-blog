@@ -9,26 +9,30 @@ image: ./diagram1.png
 
 Welcome to the first issue of the **Nullnet Blog**!
 
-:::info[About us]
-
-We're a group of developers passionate about the Rust programming language and its ecosystem.<br>
-We're in the process of building an open-source, Rust-based **firewall management system** that operates at different layers of the network stack.<br>
-As we learn and experiment along the way, this blog aims to share our experiences and knowledge with the community — we hope you'll find our content useful and engaging.
-
-:::
-
-In this post, we'll go through a **client-server architecture based on Rust's workspaces and gRPC**.<br>
+In this post, we'll go through a **client-server architecture based on Rust's workspaces and gRPC**.<br/>
 The architecture is designed to be **scalable**, **maintainable**, and **easy to extend**, making it a great starting point for your next project.
 
-We ourselves at Nullnet are setting up a codebase with a structure similar to the one we'll describe here.
+<!--truncate-->
+
+:::info[About us]
+
+We're a group of developers working daily with the Rust programming language and its ecosystem.
+
+We're in the process of building an open-source, Rust-based **firewall management system** that operates at different layers of the network stack.<br/>
+As we learn and experiment along the way, this blog aims to share our knowledge with the community — we hope you'll find the content useful and engaging.
+
+We ourselves at Nullnet are setting up a codebase with a structure similar to the one we'll describe in this article.
+
+:::
 
 Too much introduction already, let's dive into the fun stuff!
 
 ## The problem
 
-This blog post is inspired by a problem we faced while **designing the architecture** for the project we're working on.<br>
-We need to build a **distributed system** composed of multiple services that can communicate with clients over the network.<br>
-Clearly each service has to expose a set of functionalities to clients, but at the same time services need to share some **common functionalities** among them.<br>
+This blog post is inspired by a problem we faced while **designing the architecture** for the project we're working on.
+
+We need to build a **distributed system** composed of multiple services that can communicate with clients over the network.<br/>
+Clearly each service has to expose a set of functionalities to clients, but at the same time services need to share some **common functionalities** among them.<br/>
 We want to avoid code duplication and ensure that the shared capabilities are maintained in a single place,
 accommodating the need for new features — _and potentially new services using part of the existing functionalities_ — without requiring a complete overhaul of the existing codebase.
 
@@ -49,9 +53,7 @@ but the same concepts are applicable to arbitrarily complex systems.
 
 Before starting with the actual code, let's define the **skeleton** for our calculator project.
 
-<div align="center">
-    <img src="diagram1.png" alt="Case study diagram"/>
-</div>
+![Case study diagram](./diagram1.png)
 
 As it's outlined in the diagram above, we want to create two different services:
 - the `algebraic-server`, providing functionalities related to algebraic operations (e.g., factorials, exponents)
@@ -68,9 +70,9 @@ In the next sections, we'll go through the high-level implementation of the `ari
 
 We don't want to overwhelm you with too much code, so we'll keep the snippets simple and focus on the core concepts of the architecture.
 
-## Rust's workspaces: the `arithmetic-workspace`
+## Rust's workspaces
 
-A [workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) is a feature of Cargo — the Rust's package manager — that allows you to manage multiple packages that are part of the same project.<br>
+A [workspace](https://doc.rust-lang.org/book/ch14-03-cargo-workspaces.html) is a feature of Cargo — the Rust's package manager — that allows you to manage multiple packages that are part of the same project.<br/>
 Each package in a workspace is called a _member_ of the workspace and is built as a separate crate, but all members share the same `Cargo.lock` file and `target`folder.
 
 The `arithmetic-workspace` from our toy project is a perfect example of a module that can benefit from being structured as a workspace,
@@ -82,27 +84,33 @@ In our case, the `arithmetic-workspace` will contain the following members:
 - `multiply`: provides a method to multiply two floating point numbers
 - `divide`: provides a method to divide two floating point numbers
 
-To define a workspace, we need to create a `Cargo.toml` file at the root of our project and list its components under the `members` key:
+To define a workspace,
+we need to create a `Cargo.toml` file at the root of our project
+and list its components under the `workspace.members` key:
 
 ```toml title="Cargo.toml"
 [workspace]
 members = [ "add", "subtract", "multiply", "divide" ]
 ```
 
-After that, creating the base structure for each member is as simple as running `cargo new <member-name> --lib` in the root of the workspace. <br>
+After that,
+creating the base structure for each member is as simple
+as running `cargo new <member-name> --lib` in the root of the workspace.<br/>
 This will create a new library crate with the given name inside the workspace.
 
 In this case, the implementation of the libraries is trivial and will be omitted, as it only consists of a simple method to perform the corresponding operation.
 
 Once the workspace is set up, we can move on to the implementation of the actual services.
 
-## gRPC services: the `algebraic-server` and `geometric-server`
+## gRPC services
 
 [gRPC](https://grpc.io) is a modern high-performance, open-source Remote Procedure Call framework that allows you to define **services** and **message types** using [Protocol Buffers](https://protobuf.dev),
-a **language-agnostic** mechanism to serialize structured data.<br>
+a **language-agnostic** mechanism to serialize structured data.<br/>
 It's a great choice for building robust distributed systems, as it provides a simple yet efficient and **type-safe** way to communicate between services.
 
-Rust hasn't yet received official support for gRPC, but the [`tonic`](https://github.com/hyperium/tonic) project provides a feature-rich, production-ready implementation of gRPC for our beloved language.<br>
+Rust hasn't yet received official support for gRPC,
+but the [`tonic`](https://github.com/hyperium/tonic) project provides a feature-rich,
+production-ready implementation of gRPC for our beloved language.<br/>
 Let's include the needed dependencies in the `Cargo.toml` file of the `algebraic-server` and `geometric-server`:
 
 ```toml title="Cargo.toml"
@@ -115,7 +123,7 @@ tokio = { version = "1.42.0", features = ["rt-multi-thread"] }
 tonic-build = "0.12.3"
 ```
 
-First of all, we need to define the **service interfaces** in a `.proto` file. <br>
+First of all, we need to define the **service interfaces** in a `.proto` file.<br/>
 For our toy project, we'll create two separate files (`algebraic.proto` and `geometric.proto`), each containing the service definition for the corresponding server.
 
 Here's what the `algebraic.proto` file looks like to define the endpoint for computing the exponent of a number:
@@ -143,7 +151,8 @@ message FloatResponse {
 
 The `geometric.proto` file is similar, but it defines methods and message types to compute areas of squares and circles.
 
-Once the `.proto` files are defined, we can generate the Rust code for the services with the help of the `tonic-build` crate.<br>
+Once the `.proto` files are defined,
+we can generate the Rust code for the services with the help of the `tonic-build` crate.<br/>
 To do so, we need to add a `build.rs` file to our servers:
 
 ```rust title="build.rs"
@@ -160,7 +169,7 @@ fn main() {
 
 The `build.rs` file will generate the Rust code for the services in the `src/proto` directory.
 
-The next step is to implement the server logic for the services.<br>
+The next step is to implement the server logic for the services.<br/>
 The code generated by `tonic-build` provides a trait that we need to implement for the related service:
 its implementation will contain the actual logic for each of the service methods.
 
@@ -210,12 +219,12 @@ This piece of code starts a gRPC server accepting plain unencrypted messages,
 but `tonic` also supports encrypted connections using TLS —
 you can find more information about it in the [official documentation](https://docs.rs/tonic/latest/tonic/transport/index.html).
 
-But wait... we're still missing a crucial part: the **clients**!<br> 
-Even though the `algebraic-server` and `geometric-server` are intended to act as service implementors, we're going to use the same repositories to also expose **facades** for their clients.<br>
+But wait... we're still missing a crucial part: the **clients**!<br/> 
+Even though the `algebraic-server` and `geometric-server` are intended to act as service implementors, we're going to use the same repositories to also expose **facades** for their clients.<br/>
 This way, there is no need to include protobuf files in the clients' repositories, as they can use the same generated code from the servers.
 
-What it means in practice is that our services will not only include a **binary target** to run the server, but also a **library** to be imported by clients to interact with the server itself.<br>
-More specifically, clients will use the library code exposed from the servers to create a gRPC channel and call the server methods.
+What it means in practice is that our services will not only include a **binary target** to run the server, but also a **library** to be imported by clients to interact with the server itself.<br/>
+More specifically, clients will use the library code exposed by the servers to create a gRPC channel and call the server methods.
 
 In the following it's reported part of the `lib.rs` file for the `algebraic-server`, which defines a gRPC interface for its clients:
 
@@ -249,22 +258,24 @@ impl AlgebraicGrpcInterface {
 
 Here we focused on part of the `algebraic-server` implementation, but the `geometric-server` follows the same overall structure and principles.
 
-## Clients: the `algebraic-client` and `geometric-client`
+## Clients
 
-The **clients** are the final piece of the puzzle.<br>
+The **clients** are the final piece of the puzzle.<br/>
 They will use the gRPC interfaces exposed by the servers to perform remote procedure calls and consume the services.
 
 For our toy project, we'll create two clients: one for the `algebraic-server` and one for the `geometric-server` —
 we'll call them `algebraic-client` and `geometric-client`, respectively.
 
-As previously mentioned, the clients will use the same generated gRPC code from the servers.<br>
+As previously mentioned, the clients will use the same generated gRPC code from the servers.<br/>
 For this reason, clients don't need to directly include `tonic`-related dependencies in their `Cargo.toml` file,
 but only the library target from the server they're going to consume.
 
 To make things a little more interesting, each client won't just hardcode calls to the server endpoints, 
 but will **receive inputs from a file that is continuously monitored for changes**.
 
-The `algebraic-client` will read its inputs from a file containing a list of exponentiation and factorization operations to perform and will call the server for each of them.<br>
+The `algebraic-client` will read its inputs from a file
+containing a list of exponentiation and factorization operations to perform
+and will call the server for each of them.<br/>
 Here is a sample input file to compute the mathematical operations `2^4` and `5!`:
 
 ```text
@@ -272,7 +283,9 @@ pow 2,4
 factorial 5
 ```
 
-In a similar fashion, the `geometric-client` will read its inputs from a file containing a list of area computation operations to perform and will invoke the server to compute them.<br>
+In a similar fashion,
+the `geometric-client` will read its inputs from a file
+containing a list of area computation operations to perform and will invoke the server to compute them.<br/>
 In the following, a sample input file to compute the areas of a square with side length `3` and a circle with radius `2`:
 
 ```text
@@ -280,12 +293,12 @@ square 3
 circle 2
 ```
 
-As you can see, files have a peculiar format that depends on the kind of supported operations.<br>
-Each client is in charge of **parsing** the input file and calling the appropriate server endpoint.<br>
+As you can see, files have a peculiar format that depends on the kind of supported operations.<br/>
+Each client is in charge of **parsing** the input file and calling the appropriate server endpoint.<br/>
 We won't go into the details of the parsing implementation here, as it's not relevant to the core concepts of the architecture.
 
 What's more relevant is the way the **clients interact seamlessly with the servers**:
-they're able to call the server endpoints without having to worry about the underlying gRPC communication details. <br>
+they're able to call the server endpoints without having to worry about the underlying gRPC communication details.<br/>
 In fact, the clients will only interact indirectly with the gRPC layer through the facades exposed by the servers.
 
 ```rust title="Sample client-server interaction"
@@ -300,7 +313,8 @@ Furthermore, what's interesting to note is that, despite each client needs to im
 both clients need a **shared functionality** that is the ability to **monitor the input file for changes**:
 this is another sample use case for a shared library.
 
-Following the same pattern we used for the servers, we can add a new member to our `arithmetic-workspace` to contain the shared functionality for the clients. <br>
+Following the same pattern we used for the servers,
+we can add a new member to our `arithmetic-workspace` to contain the shared functionality for the clients.<br/>
 Let's call this library `file_monitor` and refactor our workspace to include two different subfolders: one for the server-related libraries and one for the client-related ones.
 
 It's worth mentioning that while the `file_monitor` library will be imported by both clients, 
@@ -324,14 +338,13 @@ The final structure of the workspace will look like this:
 Last but not least,
 here is the updated architecture diagram highlighting that also the clients are now using a shared library from the workspace:
 
-<div align="center">
-    <img src="diagram2.png" alt="Case study diagram"/>
-</div>
+![Case study diagram](./diagram2.png)
 
 ## Wrapping up
 
-In this article, we've gone through the implementation of an architecture based on Rust's workspaces and gRPC.<br>
-We've seen how to structure a project with multiple services using shared libraries from a workspace, how to define gRPC servers with `tonic` that include facades for their own clients, and how to use Protocol Buffers to define service interfaces.
+In this article, we've gone through the implementation of an architecture based on Rust's workspaces and gRPC.<br/>
+We've seen how to structure a project with multiple services using shared libraries from a workspace,
+how to define gRPC servers that include facades for their own clients, and how to use Protocol Buffers to define service interfaces.
 
 :::tip[Source code]
 
@@ -345,4 +358,4 @@ you can find the full implementation of the discussed modules on our GitHub:
 
 :::
 
-Stay tuned for the next blog post, with more insights about Rust, security, and distributed systems!
+Stay tuned for the next blog post, with more insights about Rust, networking, security, and distributed systems!
