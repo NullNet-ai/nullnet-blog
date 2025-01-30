@@ -271,7 +271,13 @@ What's more relevant is the way the **clients interact seamlessly with the serve
 they're able to call the server endpoints without having to worry about the underlying gRPC communication details. <br>
 In fact, the clients will only interact indirectly with the gRPC layer through the facades exposed by the servers.
 
-TODO: add a brief snippet of the client calls to the server
+```rust title="Sample client-server interaction"
+async fn call_server_sample() {
+    let mut facade = AlgebraicGrpcInterface::new("localhost", 50051).await;
+    let message = ExponentMessage { base: 2.0, exponent: 4 };
+    let response = facade.exponent(message).await.unwrap();
+}
+```
 
 Furthermore, what's interesting to note is that, despite each client needs to implement a specific parsing logic,
 both clients need a **shared functionality** that is the ability to **monitor the input file for changes**:
@@ -295,7 +301,8 @@ The final structure of the workspace will look like this:
 └── target
 ```
 
-Last but not least, here is the updated architecture diagram highlighting that also the clients are using a shared library from the workspace:
+Last but not least,
+here is the updated architecture diagram highlighting that also the clients are now using a shared library from the workspace:
 
 <div align="center">
     <img src="diagram2.png" alt="Case study diagram"/>
@@ -304,13 +311,18 @@ Last but not least, here is the updated architecture diagram highlighting that a
 ## Wrapping up
 
 In this article, we've gone through the implementation of an architecture based on Rust's workspaces and gRPC.<br>
-We've seen how to structure a project with multiple services using shared libraries from a workspace, how to define gRPC servers with `tonic` including facades for their own clients, and how to use Protocol Buffers to define service interfaces.
+We've seen how to structure a project with multiple services using shared libraries from a workspace, how to define gRPC servers with `tonic` that include facades for their own clients, and how to use Protocol Buffers to define service interfaces.
 
-In case you're interested in taking a closer look at the source code, you can find the full implementation of the modules on our GitHub:
+:::tip[Source code]
+
+In case you're interested in taking a closer look at the source code,
+you can find the full implementation of the discussed modules on our GitHub:
 - [`arithmetic-workspace`](https://github.com/NullNet-ai/arithmetic-workspace)
 - [`algebraic-server`](https://github.com/NullNet-ai/algebraic-server)
 - [`geometric-server`](https://github.com/NullNet-ai/geometric-server)
 - [`algebraic-client`](https://github.com/NullNet-ai/algebraic-client)
 - [`geometric-client`](https://github.com/NullNet-ai/geometric-client)
+
+:::
 
 Stay tuned for the next blog post, with more insights about Rust, security, and distributed systems!
