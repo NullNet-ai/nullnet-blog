@@ -123,45 +123,6 @@ tokio = { version = "1.42.0", features = ["rt-multi-thread"] }
 tonic-build = "0.12.3"
 ```
 
-:::warning[Protocol Buffer compiler installation]
-
-To generate Rust code from `.proto` files,
-you need to have the Protocol Buffer compiler (`protoc`) installed on your machine.<br/>
-In the following it's reported how we're installing it for common operating systems in our GitHub workflow:
-
-<details>
-
-<summary>see details</summary>
-
-```yaml
-- name: Install macOS dependencies
-  if: matrix.os == 'macos'
-  run: |
-    curl -OL https://github.com/google/protobuf/releases/download/v3.20.3/protoc-3.20.3-osx-x86_64.zip
-    unzip protoc-3.20.3-osx-x86_64.zip -d protoc3
-    sudo mv protoc3/bin/* /usr/local/bin/
-    sudo mv protoc3/include/* /usr/local/include/
-
-- name: Install Linux dependencies
-  if: matrix.os == 'ubuntu'
-  run: |
-    curl -OL https://github.com/google/protobuf/releases/download/v3.20.3/protoc-3.20.3-linux-x86_64.zip
-    unzip protoc-3.20.3-linux-x86_64.zip -d protoc3
-    sudo mv protoc3/bin/* /usr/local/bin/
-    sudo mv protoc3/include/* /usr/local/include/
-
-- name: Install Windows dependencies
-  if: matrix.os == 'windows'
-  run: |
-    Invoke-WebRequest -Uri "https://github.com/google/protobuf/releases/download/v3.20.3/protoc-3.20.3-win64.zip" -OutFile "C:\protoc.zip"
-    Expand-Archive -LiteralPath "C:\protoc.zip" -DestinationPath C:\protoc
-    echo "C:\protoc\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-```
-
-</details>
-
-:::
-
 First of all, we need to define the **service interfaces** in a `.proto` file.<br/>
 For our toy project, we'll create two separate files (`algebraic.proto` and `geometric.proto`), each containing the service definition for the corresponding server.
 
@@ -205,6 +166,45 @@ fn main() {
         .expect("Protobuf files generation failed");
 }
 ```
+
+:::warning[Protocol Buffer compiler installation]
+
+To generate Rust code from `.proto` files,
+you need to have the Protocol Buffer compiler (`protoc`) installed on your machine.<br/>
+In the following it's reported how we're installing it for common operating systems in our GitHub workflow:
+
+<details>
+
+<summary>see details</summary>
+
+```yaml
+- name: Install macOS dependencies
+  if: matrix.os == 'macos'
+  run: |
+    curl -OL https://github.com/google/protobuf/releases/download/v3.20.3/protoc-3.20.3-osx-x86_64.zip
+    unzip protoc-3.20.3-osx-x86_64.zip -d protoc3
+    sudo mv protoc3/bin/* /usr/local/bin/
+    sudo mv protoc3/include/* /usr/local/include/
+
+- name: Install Linux dependencies
+  if: matrix.os == 'ubuntu'
+  run: |
+    curl -OL https://github.com/google/protobuf/releases/download/v3.20.3/protoc-3.20.3-linux-x86_64.zip
+    unzip protoc-3.20.3-linux-x86_64.zip -d protoc3
+    sudo mv protoc3/bin/* /usr/local/bin/
+    sudo mv protoc3/include/* /usr/local/include/
+
+- name: Install Windows dependencies
+  if: matrix.os == 'windows'
+  run: |
+    Invoke-WebRequest -Uri "https://github.com/google/protobuf/releases/download/v3.20.3/protoc-3.20.3-win64.zip" -OutFile "C:\protoc.zip"
+    Expand-Archive -LiteralPath "C:\protoc.zip" -DestinationPath C:\protoc
+    echo "C:\protoc\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+```
+
+</details>
+
+:::
 
 The `build.rs` file will generate the Rust code for the services in the `src/proto` directory.
 
