@@ -56,7 +56,7 @@ Before starting with the actual code, let's define the **skeleton** for our calc
 ![Case study diagram](./diagram1.png)
 
 As it's outlined in the diagram above, we want to create two different services:
-- the `algebraic-server`, providing functionalities related to algebraic operations (e.g., factorials, exponents)
+- the `algebraic-server`, providing functionalities related to algebraic operations (e.g., factorials, powers)
 - the `geometric-server`, exposing utilities related to geometric operations (e.g., computation of shape areas)
 
 Both services will internally use a shared set of simple arithmetic operations
@@ -313,7 +313,7 @@ To make things a little more interesting, each client won't just hardcode calls 
 but will **receive inputs from a file that is continuously monitored for changes**.
 
 The `algebraic-client` will read its inputs from a file
-containing a list of exponentiation and factorization operations to perform
+containing a list of power and factorial operations to perform
 and will call the server for each of them.<br/>
 Here is a sample input file to compute the mathematical operations `2^4` and `5!`:
 
